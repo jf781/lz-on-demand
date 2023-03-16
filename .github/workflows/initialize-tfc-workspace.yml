@@ -1,0 +1,125 @@
+name: 'Initialize a TFC workspace'
+on: 
+  workflow_call:
+    inputs:
+      WORKSPACE_NAME:
+        description: 'Defines the workspace Name'
+        required: true
+        type: string
+      TFC_ORG_NAME:
+        description: 'Defines the Terraform Cloud organization name'
+        required: true
+        type: string
+      TFC_REPO:
+        description: 'Defines the URL that contains the workspace code'
+        required: true
+        type: string
+      TFC_REPO_BRANCH:
+        description: 'Defines the branch that contains the workspace code'
+        required: true
+        type: string
+      TAGS:
+        description: 'JSON to define tags'
+        type: string
+        required: true
+      REGION:
+        description: 'Defines the region'
+        type: string
+        required: true
+    outputs:
+      TFC_WORKSPACE_ID:
+        description: 'The ID of the new TFC workspace'
+        value: ${{ jobs.initialize-tfc-workspace.outputs.TFC_WORKSPACE_ID }}
+
+jobs:
+  initialize-tfc-workspace:
+    runs-on: ubuntu-latest
+    outputs:
+      TFC_WORKSPACE_ID: ${{ env.WORKSPACE_ID }}
+    steps:
+    - name: 'Define runtime variables'
+      run: |
+        mkdir ${{ github.workspace }}/temp
+        echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
+    - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.TFC_REPO }}
+        path: ${{ env.REPO_TEMP_PATH }}
+        token: ${{ secrets.GH_TOKEN }}
+        ref: ${{ inputs.TFC_REPO_BRANCH }}
+    - name: 'Authenticate to Terraform Cloud and create workspace'
+      run: |
+        export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
+        cd ${{ env.REPO_TEMP_PATH }}
+        terraform init
+    - name: 'Define TFC Variable - location'
+      uses: cbsinteractive/create-tfc-workspace-variable-action@v1
+      with:
+        tfcToken: ${{ secrets.TFC_TOKEN }}
+        orgName: ${{ inputs.TFC_ORG_NAME }}
+        workspaceName: ${{ inputs.WORKSPACE_NAME }}
+        variableName: location
+        category: terraform
+        sensitive: false
+        value: ${{ inputs.REGION }}
+    - name: 'Define TFC Variable - ARM_SUBSCRIPTION_ID'
+      uses: cbsinteractive/create-tfc-workspace-variable-action@v1
+      with:
+        tfcToken: ${{ secrets.TFC_TOKEN }}
+        orgName: ${{ inputs.TFC_ORG_NAME }}
+        workspaceName: ${{ inputs.WORKSPACE_NAME }}
+        variableName: ARM_SUBSCRIPTION_ID
+        category: env
+        sensitive: true
+        value: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    - name: 'Get ID of newly created TFC workspace'
+      run: |
+        workspaces=$( curl -X GET 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME}}/workspaces' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" )
+        workspaceId=$( echo $workspaces | jq '.data[] | select ( .attributes.name == "${{ inputs.WORKSPACE_NAME }}" ) | .id ' -r )
+        echo "WORKSPACE_ID=$workspaceId" >> $GITHUB_ENV
+        echo "workspaceId is $workspaceId"
+        if [ -z "$workspaceId" ]; then exit 2 ; fi 
+    - name: 'Update TFC Workspace to connect with GitHub Repo'
+      run: |
+        workspaceUpdate=$( curl -X PATCH 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME }}/workspaces/${{ inputs.WORKSPACE_NAME }}' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" \
+        --data-raw '{"data":{"attributes":{"vcs-repo":{"identifier":"${{ inputs.TFC_REPO }}","oauth-token-id":"${{ secrets.TFC_GH_TOKEN_ID }}","branch":"${{ inputs.TFC_REPO_BRANCH }}"}}}}' )
+        workspaceName=$( echo $workspaceUpdate | jq '.data.attributes.name' -r )
+        if [ -z "$workspaceName" ]; then exit 2 ; fi 
+    - name: 'Get variable set used to authenticate with Hyper scaler'
+      run: |
+        variableSets=$( curl -X GET 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME}}/varsets' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" )
+        varSetId=$( echo $variableSets | jq '.data[] | select ( .attributes.name == "${{ vars.TFC_AZURE_VAR_SET_NAME }}" ) | .id ' -r )
+        echo "varSetId is $varSetId"
+        if [ -z "$varSetId" ]; then exit 2 ; fi
+        echo "VAR_SET_ID=$varSetId" >> $GITHUB_ENV
+    - name: 'Add variable set used to authenticate with Hyper scaler with workspace'
+      run: |        
+        varSetOutput=$( curl -X POST 'https://app.terraform.io/api/v2/varsets/${{ env.VAR_SET_ID }}/relationships/workspaces' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" \
+        --data-raw '{"data": [{"type": "workspaces", "id": "${{ env.WORKSPACE_ID }}"}]}' )
+        echo "varSetOutput is $varSetOutput"
+        if [ -n "$varSetOutput" ]; then
+          applyErrors=$( echo $varSetOutput | jq '.errors[]' -r ) 
+          echo $applyErrors 
+          exit 2 ; 
+        fi
+    - name: 'Run Terraform Validate and Plan'
+      run: |
+        export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
+        cd ${{ env.REPO_TEMP_PATH }}
+        terraform validate
+        terraform plan
+
+
+
+# Next steps:
+# 2. Define variables for within the TFC workspace
+# 3. Run the Infra workspace to deploy the infra

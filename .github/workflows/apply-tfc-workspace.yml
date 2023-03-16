@@ -1,0 +1,61 @@
+name: 'Applies TFC workspace'
+on: 
+  workflow_call:
+    inputs:
+      WORKSPACE_NAME:
+        description: 'Defines the workspace Name'
+        required: true
+        type: string
+      ORG_NAME:
+        description: 'Defines the Terraform Cloud organization name'
+        required: true
+        type: string
+      TFC_REPO:
+        description: 'Defines the URL that contains the workspace code'
+        required: true
+        type: string
+      TFC_REPO_BRANCH:
+        description: 'Defines the branch that contains the workspace code'
+        required: true
+        type: string
+      TFC_WORKSPACE_ID: 
+        description: 'Defines the TFC workspace ID'
+        required: true
+        type: string
+
+jobs:
+  update-provider-file:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Define runtime variables'
+      run: |
+        mkdir ${{ github.workspace }}/temp
+        echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
+    - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.TFC_REPO }}
+        path: ${{ env.REPO_TEMP_PATH }}
+        token: ${{ secrets.GH_TOKEN }}
+        ref: ${{ inputs.TFC_REPO_BRANCH }}
+    - name: 'Authenticate to Terraform Cloud and create workspace'
+      run: |
+        export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
+        cd ${{ env.REPO_TEMP_PATH }}
+        terraform init
+    - name: 'Run Terraform Validate and Plan'
+      run: |
+        export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
+        cd ${{ env.REPO_TEMP_PATH }}
+        terraform validate
+        terraform plan
+    - name: 'Run Terraform Apply'
+      run: |
+        applyOutput=$( curl -X POST 'https://app.terraform.io/api/v2/runs' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" \
+        --data-raw '{"data":{"attributes":{"message":"Initiated by GitHub Actions","auto-apply":true},"type":"runs","relationships":{"workspace":{"data":{"type":"workspaces","id":"${{ inputs.TFC_WORKSPACE_ID }}"}}}}}' )
+        if [ -z "$applyOutput" ]; then
+          echo "applyOutput is $applyOutput"
+          exit 2 ; 
+        fi

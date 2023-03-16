@@ -1,0 +1,17 @@
+name: 'Update GitHub Repo Permissions'
+on: 
+  workflow_call:
+
+jobs:
+  update-gh-repo-permissions:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Do the thing'
+      run: |
+        echo "Do the thing"
+### Updates the GH Repo Permissions
+
+## Notes
+#  Create the team - https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#create-a-team
+#  Update Team Repo Permissions - https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#add-or-update-team-repository-permissions
+#  Add a user to a team - https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#add-or-update-team-membership-for-a-user

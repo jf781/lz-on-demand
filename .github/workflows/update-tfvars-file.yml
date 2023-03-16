@@ -1,0 +1,96 @@
+name: 'Updates TFVars with the Landing Zone details'
+on: 
+  workflow_call:
+    inputs:
+      TFC_REPO:
+        description: 'Defines the URL that contains the workspace code'
+        required: true
+        type: string
+      TFC_REPO_BRANCH:
+        description: 'Defines the branch that contains the workspace code'
+        required: true
+        type: string
+      TAGS:
+        description: 'Defines the tags that will be applied to the workspace'
+        required: true
+        type: string
+      PARENT_MGMT_GRP_NAME:
+        description: 'Defines the name of the parent management group'
+        required: true
+        type: string
+      MGMT_GRP_POLICIES:
+        description: 'Defines the policies that will be applied to the management group'
+        required: true
+        type: string
+      SUBSCRIPTION_NAME:
+        description: 'Defines the name of the subscription'
+        required: true
+        type: string
+      VNET:
+        description: 'JSON to define Vnet Settings'
+        required: true
+        type: string
+      RBAC:
+        description: 'JSON to define RBAC Settings'
+        required: true
+        type: string
+      BUDGET:
+        description: 'JSON to define Budget Settings'
+        required: true
+        type: string
+      SUBNETS:
+        description: 'JSON to define Subnets'
+        required: true
+        type: string  
+
+jobs:
+  update-tfvars-file:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Define runtime variables'
+      run: |
+        # Define the temporary path for updating files
+        mkdir ${{ github.workspace }}/temp
+        echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
+    - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.TFC_REPO }}
+        path: ${{ env.REPO_TEMP_PATH }}
+        token: ${{ secrets.GH_TOKEN }}
+        ref: ${{ inputs.TFC_REPO_BRANCH }}
+    - name: 'Update workspace.auto.tfvars file to use provided variables'
+      uses: cschleiden/replace-tokens@v1
+      with:
+        tokenPrefix: '___'
+        tokenSuffix: '___'
+        files: '${{ env.REPO_TEMP_PATH }}/workspace.auto.tfvars'
+      env:
+        TAGS: ${{ inputs.TAGS }}
+        PARENT_MGMT_GRP_NAME: ${{ inputs.PARENT_MGMT_GRP_NAME }}
+        MGMT_GRP_POLICIES: ${{ inputs.MGMT_GRP_POLICIES }}
+        SUBSCRIPTION_NAME: ${{ inputs.SUBSCRIPTION_NAME }}
+        VNET_ADDRESS_SPACE: ${{ fromJSON(inputs.VNET).addressSpace}}
+        VNET_HUB_VNET_NAME: ${{ fromJSON(inputs.VNET).hubVnetName}}
+        VNET_HUB_VNET_RG_NAME: ${{ fromJSON(inputs.VNET).hubVnetRgName}}
+        VNET_HUB_FIREWALL_IP: ${{ fromJSON(inputs.VNET).firewallIp}}
+        RBAC_AZURE_AD_GROUP_NAME: ${{ fromJSON(inputs.RBAC).azureAdGroupName}}
+        RBAC_ROLE_NAME: ${{ fromJSON(inputs.RBAC).rbacRoleName}}
+        RBAC_SCOPE_TYPE: ${{ fromJSON(inputs.RBAC).rbacScopeType}}
+        RBAC_ROLE_TYPE: ${{ fromJSON(inputs.RBAC).rbacRoleType}}
+        BUDGET_EMAIL_CONTACTS: ${{ fromJSON(inputs.BUDGET).emailContacts}}
+        BUDGET_AMOUNT: ${{ fromJSON(inputs.BUDGET).budgetAmount}}
+        SUBNET_LIST: ${{ inputs.SUBNETS }}
+    # - uses: actions/checkout@v3
+    - name: 'Update workspace.auto.tfvars file to replace colons with equal signs'
+      run: |
+        cd ${{ env.REPO_TEMP_PATH }}
+        sed -i 's/:/ =/g' workspace.auto.tfvars
+    - name: 'Commit and push changes made to workspace.auto.tfvars file to the repo: ${{ inputs.TFC_REPO }}'
+      run: |
+          cd ${{ env.REPO_TEMP_PATH }}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Updated workspace.auto.tfvars file with inputs provided to the workflow"
+          git push     

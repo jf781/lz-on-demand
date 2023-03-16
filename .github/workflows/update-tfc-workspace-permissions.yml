@@ -1,0 +1,6 @@
+### Updates the TFC Workspace Permissions
+
+## Notes
+#  Create the team - https://developer.hashicorp.com/terraform/cloud-docs/api-docs/teams#create-a-team
+#  Add user to the team - https://developer.hashicorp.com/terraform/cloud-docs/api-docs/team-members#add-a-user-to-team-with-user-id
+#  Add team to a workspace - https://developer.hashicorp.com/terraform/cloud-docs/api-docs/team-access#add-team-access-to-a-workspace

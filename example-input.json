@@ -1,0 +1,14 @@
+{
+  "ref": "main",
+  "inputs": {
+    "SUBSCRIPTION_NAME": "exp-lz-repo-02",
+    "TEMPLATE_REPO_URL": "https://github.com/jf781/lz-infra-bootstrap-repo",
+    "PARENT_MGMT_GRP_NAME": "mg-shc-root",
+    "MGMT_GRP_POLICIES": "{\"policy1Id\"}",
+    "TAGS": "{\"environment\": \"Sandbox\", \"region\": \"w2\", \"status\": \"In Transit\", \"business_criticality\": \"Low\", \"data_classification\": \"Internal\", \"application\": \"Data Analytics Test\", \"responsible_group_manager\": \"IT Test Mgr\", \"responsible_group_org_name\": \"IT Test Org\", \"deployed_by\": \"IT\", \"backup\": \"backup-value\", \"value_stream\": \"Data Analytics\", \"responsible_group_org_dl\": \"ittest@sharphealthcare.org\", \"deployment_date\": \"1/1/2001\", \"shc_app_usage\": \"Business Hours\", \"iac_repo\": \"repo-name\", \"cost_center\": \"1234\"}",
+    "VNET": "{\"addressSpace\": \"10.10.0.0/16\", \"hubVnetName\": \"hub-vnet\", \"hubVnetRgName\": \"hub-rg\", \"firewallIp\": \"10.0.0.1\"}",
+    "RBAC": "{\"azureAdGroupName\": \"AADGroupName\", \"rbacRoleName\": \"Contributor\", \"rbacScopeType\": \"management_group\", \"rbacRoleType\": \"builtin\"}",
+    "BUDGET": "{\"emailContacts\": \"bob@bob.com\\\", \\\"frank@frank.com\", \"budgetAmount\": \"1000\"}",
+    "SUBNETS": "[\r\n  {\r\n    \"subnet_name\" = \"subnet-01\"\r\n    \"prefix\"      = \"10.10.10.0\/24\"\r\n    \"purpose\"     = \"Test\"\r\n    \"nsg_map\"     = [\r\n      {\r\n        \"name\"                       = \"rule01\"\r\n        \"priority\"                   = 101\r\n        \"direction\"                  = \"Inbound\"\r\n        \"access\"                     = \"Allow\"\r\n        \"protocol\"                   = \"*\"\r\n        \"source_port_range\"          = \"*\"\r\n        \"destination_port_ranges\"    = [\r\n          \"80\",\r\n          \"443\",\r\n          \"3389\",\r\n          \"22\"\r\n        ]\r\n        \"destination_port_range\"     = \"\"\r\n        \"source_address_prefix\"      = \"*\"\r\n        \"destination_address_prefix\" = \"*\"\r\n      }\r\n    ]\r\n  }\r\n]"
+  }
+}
