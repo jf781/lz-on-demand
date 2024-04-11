@@ -56,16 +56,16 @@ jobs:
         echo "NEW_REPO_URL=$newRepoApiUrl" >> $GITHUB_ENV
         echo "NEW_REPO_FULL_NAME=$newRepoName" >> $GITHUB_ENV
         echo "NEW_REPO_DEFAULT_BRANCH=$newRepoDefaultBranch" >> $GITHUB_ENV
-    # - name: 'Disable GitHub Actions'
-    #   run: |
-    #     output=$(curl -X DELETE 'https://api.github.com/orgs/${{ vars.GH_ORG }}/actions/permissions/repositories/${{ env.NEW_REPO_ID }}' \
-    #     -H "Accept: application/vnd.github+json" \
-    #     -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
-    #     -H "X-GitHub-Api-Version: 2022-11-28" \
-    #     -d '{"allowedactions": "disabled"'} )
-    #     echo $output
-    #     # importStatus=$(echo $output | jq '.status' -r )
-    #     # if [ -z "$importStatus" ]; then exit 2 ; fi 
+    - name: 'Disable GitHub Actions'
+      run: |
+        output=$(curl -X DELETE 'https://api.github.com/orgs/${{ vars.GH_ORG }}/actions/permissions/repositories/${{ env.NEW_REPO_ID }}' \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -d '{"allowedactions": "disabled"'} )
+        echo $output
+        # importStatus=$(echo $output | jq '.status' -r )
+        # if [ -z "$importStatus" ]; then exit 2 ; fi 
     - name: 'Import template repo'
       run: |
         importOutput=$(curl -X PUT '${{ env.NEW_REPO_API_URL }}/import' \
