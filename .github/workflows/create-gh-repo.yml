@@ -68,11 +68,11 @@ jobs:
     #     # if [ -z "$importStatus" ]; then exit 2 ; fi 
     - name: 'Import template repo'
       run: |
-        importOutput=$(curl -X PUT '${{ env.TEMPLATE_REPO_URL}}/generate' \
+        importOutput=$(curl -X PUT '${{ inputs.TEMPLATE_REPO_URL}}/generate' \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        -d '{"owner":"{{ vars.GH_ORG }}","name":"${{ inputs.REPO_NAME }}","description":"Generated from template: ${{ env.TEMPLATE_REPO_URL}}","include_all_branches":false,"private":false}')
+        -d '{"owner":"{{ vars.GH_ORG }}","name":"${{ inputs.REPO_NAME }}","description":"Generated from template: ${{ inputs.TEMPLATE_REPO_URL}}","include_all_branches":false,"private":false}')
         # echo $importOutput
         # importStatus=$(echo $importOutput | jq '.status' -r )
         # if [ -z "$importStatus" ]; then exit 2 ; fi
