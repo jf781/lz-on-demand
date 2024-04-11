@@ -68,7 +68,7 @@ jobs:
     #     # if [ -z "$importStatus" ]; then exit 2 ; fi 
     - name: 'Import template repo'
       run: |
-        importOutput=$(curl -X PUT '${{ inputs.TEMPLATE_REPO_URL}}/generate' \
+        importOutput=$(curl -X POST '${{ inputs.TEMPLATE_REPO_URL}}/generate' \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
