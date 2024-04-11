@@ -30,21 +30,57 @@ jobs:
       NEW_REPO_FULL_NAME: ${{ env.NEW_REPO_FULL_NAME }}
       NEW_REPO_DEFAULT_BRANCH: ${{ env.NEW_REPO_DEFAULT_BRANCH }}
     steps:
-    - name: 'Create new repo'
+    # - name: 'Create new repo'
+    #   run: |
+    #     # Used for organization GitHub Accounts
+    #     # repoOutput=$(curl -X POST 'https://api.github.com/orgs/${{ vars.GH_ORG }}/repos' \
+    #     # Used for Personal GitHub Accounts
+    #     repoOutput=$(curl -X POST 'https://api.github.com/user/repos' \
+    #     -H "Accept: application/vnd.github+json" \
+    #     -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+    #     -H "X-GitHub-Api-Version: 2022-11-28" \
+    #     -d '{"name":"${{ inputs.REPO_NAME }}","private":true}')
+    #     newRepoId=$(echo $repoOutput | jq '.id' -r )
+    #     newRepoApiUrl=$(echo $repoOutput | jq '.url' -r )
+    #     newRepoName=$(echo $repoOutput | jq '.full_name' -r )
+    #     newRepoUrl=$(echo $repoOutput | jq '.html_url' -r )
+    #     newRepoDefaultBranch=$(echo $repoOutput | jq '.default_branch' -r )
+    #     if [ -z "$newRepoApiUrl" ]; then exit 2 ; fi 
+    #     echo "New Repo ID is: "$newRepoId
+    #     echo "New Repo API URL is: "$newRepoApiUrl
+    #     echo "New Repo Name is: "$newRepoName
+    #     echo "New Repo URL is: "$newRepoUrl
+    #     echo "New Repo Default Branch is: "$newRepoDefaultBranch
+    #     echo "NEW_REPO_ID=$newRepoId" >> $GITHUB_ENV
+    #     echo "NEW_REPO_API_URL=$newRepoApiUrl" >> $GITHUB_ENV
+    #     echo "NEW_REPO_URL=$newRepoApiUrl" >> $GITHUB_ENV
+    #     echo "NEW_REPO_FULL_NAME=$newRepoName" >> $GITHUB_ENV
+    #     echo "NEW_REPO_DEFAULT_BRANCH=$newRepoDefaultBranch" >> $GITHUB_ENV
+    # - name: 'Disable GitHub Actions'
+    #   run: |
+    #     output=$(curl -X DELETE 'https://api.github.com/orgs/${{ vars.GH_ORG }}/actions/permissions/repositories/${{ env.NEW_REPO_ID }}' \
+    #     -H "Accept: application/vnd.github+json" \
+    #     -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+    #     -H "X-GitHub-Api-Version: 2022-11-28" \
+    #     -d '{"allowedactions": "disabled"'} )
+    #     echo $output
+    #     # importStatus=$(echo $output | jq '.status' -r )
+    #     # if [ -z "$importStatus" ]; then exit 2 ; fi 
+    - name: 'Import template repo'
       run: |
-        # Used for organization GitHub Accounts
-        # repoOutput=$(curl -X POST 'https://api.github.com/orgs/${{ vars.GH_ORG }}/repos' \
-        # Used for Personal GitHub Accounts
-        repoOutput=$(curl -X POST 'https://api.github.com/user/repos' \
+        importOutput=$(curl -X PUT '${{ env.TEMPLATE_REPO_URL}}/generate' \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        -d '{"name":"${{ inputs.REPO_NAME }}","private":true}')
-        newRepoId=$(echo $repoOutput | jq '.id' -r )
-        newRepoApiUrl=$(echo $repoOutput | jq '.url' -r )
-        newRepoName=$(echo $repoOutput | jq '.full_name' -r )
-        newRepoUrl=$(echo $repoOutput | jq '.html_url' -r )
-        newRepoDefaultBranch=$(echo $repoOutput | jq '.default_branch' -r )
+        -d '{"owner":"{{ vars.GH_ORG }}","name":"${{ inputs.REPO_NAME }}","description":"Generated from template: ${{ env.TEMPLATE_REPO_URL}}","include_all_branches":false,"private":false}')
+        # echo $importOutput
+        # importStatus=$(echo $importOutput | jq '.status' -r )
+        # if [ -z "$importStatus" ]; then exit 2 ; fi
+        newRepoId=$(echo $importOutput | jq '.id' -r )
+        newRepoApiUrl=$(echo $importOutput | jq '.url' -r )
+        newRepoName=$(echo $importOutput | jq '.full_name' -r )
+        newRepoUrl=$(echo $importOutput | jq '.html_url' -r )
+        newRepoDefaultBranch=$(echo $importOutput | jq '.default_branch' -r )
         if [ -z "$newRepoApiUrl" ]; then exit 2 ; fi 
         echo "New Repo ID is: "$newRepoId
         echo "New Repo API URL is: "$newRepoApiUrl
@@ -56,26 +92,6 @@ jobs:
         echo "NEW_REPO_URL=$newRepoApiUrl" >> $GITHUB_ENV
         echo "NEW_REPO_FULL_NAME=$newRepoName" >> $GITHUB_ENV
         echo "NEW_REPO_DEFAULT_BRANCH=$newRepoDefaultBranch" >> $GITHUB_ENV
-    - name: 'Disable GitHub Actions'
-      run: |
-        output=$(curl -X DELETE 'https://api.github.com/orgs/${{ vars.GH_ORG }}/actions/permissions/repositories/${{ env.NEW_REPO_ID }}' \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        -d '{"allowedactions": "disabled"'} )
-        echo $output
-        # importStatus=$(echo $output | jq '.status' -r )
-        # if [ -z "$importStatus" ]; then exit 2 ; fi 
-    - name: 'Import template repo'
-      run: |
-        importOutput=$(curl -X PUT '${{ env.NEW_REPO_API_URL }}/import' \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        -d '{"vcs":"git","vcs_url":"${{ inputs.TEMPLATE_REPO_URL }}","vcs_username":"${{ vars.GH_ORG }}","vcs_password":"${{ secrets.GH_TOKEN  }}"}')
-        echo $importOutput
-        importStatus=$(echo $importOutput | jq '.status' -r )
-        if [ -z "$importStatus" ]; then exit 2 ; fi 
     - name: 'Confirming Import was successful'
       shell: bash
       run: |
