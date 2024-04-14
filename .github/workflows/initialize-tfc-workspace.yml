@@ -64,7 +64,7 @@ jobs:
         if [ -z "$workspaceId" ]; then exit 2 ; fi 
     - name: 'Define TFC Variable - location'
       run: |
-        variable=$( curl -X GET 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}' \
+        variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" \
         -d '{"data":{"type":"vars","attributes":{"key":"location","value":"${{ inputs.REGION }}","category":"terraform","hcl":false,"sensitive":false}}}')
@@ -72,7 +72,7 @@ jobs:
         if [ -z "$variableId" ]; then exit 2 ; fi
     - name: 'Define TFC Variable - ARM_SUBSCRIPTION_ID'
       run: |
-        variable=$( curl -X GET 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}' \
+        variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" \
         -d '{"data":{"type":"vars","attributes":{"key":"ARM_SUBSCRIPTION_ID","value":"${{ secrets.ARM_SUBSCRIPTION_ID }}","category":"env","hcl":false,"sensitive":true}}}')
