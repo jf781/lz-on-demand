@@ -10,6 +10,19 @@ org='--- Enter your GitHub Org name ---'
 repo='--- Enter your GitHub Repo that contains the actions ---'
 ```
 
+### Get workflow ID
+```bash
+curl --request GET "https://api.github.com/repos/$org/$repo/actions/workflows" \
+--header "X-GitHub-Api-Version: 2022-11-28" \
+--header "Accept: application/vnd.github+json" \
+--header "Authorization: Bearer $pat" | jq '.workspaces[]'
+```
+
+### Define Workflow ID
+```bash
+workflowId=`--- ID of the GitHub action you are calling ---`
+```
+
 ### Get GitHub Import Status
 ```bash
 curl \
@@ -21,7 +34,7 @@ curl \
 
 ### Initiate GitHub ActionWorkflow (PoC Workflow)
 ```bash
-curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/46876596/dispatches" \
+curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/$workflowId/dispatches" \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $pat"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -30,7 +43,7 @@ curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/46876596
 
 ### Initiate GitHub ActionWorkflow using a parameter file (PoC Workflow)
 ```bash
-curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/46876596/dispatches" \
+curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/$workflowId/dispatches" \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $pat"\
   -H "X-GitHub-Api-Version: 2022-11-28" \

@@ -1,11 +1,11 @@
 {
   "ref": "main",
   "inputs": {
-    "SUBSCRIPTION_NAME": "exp-lz-repo-02",
-    "TEMPLATE_REPO_URL": "https://github.com/jf781/lz-infra-bootstrap-repo",
+    "SUBSCRIPTION_NAME": "exp-lz-repo-03",
+    "TEMPLATE_REPO_URL": "https://github.com/repos/jf781/lz-infra-bootstrap-repo",
     "PARENT_MGMT_GRP_NAME": "mg-shc-root",
     "MGMT_GRP_POLICIES": "{\"policy1Id\"}",
-    "TAGS": "{\"environment\": \"Sandbox\", \"region\": \"w2\", \"status\": \"In Transit\", \"business_criticality\": \"Low\", \"data_classification\": \"Internal\", \"application\": \"Data Analytics Test\", \"responsible_group_manager\": \"IT Test Mgr\", \"responsible_group_org_name\": \"IT Test Org\", \"deployed_by\": \"IT\", \"backup\": \"backup-value\", \"value_stream\": \"Data Analytics\", \"responsible_group_org_dl\": \"ittest@sharphealthcare.org\", \"deployment_date\": \"1/1/2001\", \"shc_app_usage\": \"Business Hours\", \"iac_repo\": \"repo-name\", \"cost_center\": \"1234\"}",
+    "TAGS": "{\"environment\": \"Sandbox\", \"region\": \"w1\", \"status\": \"In Transit\", \"business_criticality\": \"Low\", \"data_classification\": \"Internal\", \"application\": \"Data Analytics Test\", \"responsible_group_manager\": \"IT Test Mgr\", \"responsible_group_org_name\": \"IT Test Org\", \"deployed_by\": \"IT\", \"backup\": \"backup-value\", \"value_stream\": \"Data Analytics\", \"responsible_group_org_dl\": \"ittest@sharphealthcare.org\", \"deployment_date\": \"1/1/2001\", \"shc_app_usage\": \"Business Hours\", \"iac_repo\": \"repo-name\", \"cost_center\": \"1234\"}",
     "VNET": "{\"addressSpace\": \"10.10.0.0/16\", \"hubVnetName\": \"hub-vnet\", \"hubVnetRgName\": \"hub-rg\", \"firewallIp\": \"10.0.0.1\"}",
     "RBAC": "{\"azureAdGroupName\": \"AADGroupName\", \"rbacRoleName\": \"Contributor\", \"rbacScopeType\": \"management_group\", \"rbacRoleType\": \"builtin\"}",
     "BUDGET": "{\"emailContacts\": \"bob@bob.com\\\", \\\"frank@frank.com\", \"budgetAmount\": \"1000\"}",

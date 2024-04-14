@@ -65,7 +65,7 @@ repo='--- Enter your GitHub Repo that contains the actions ---'
 curl --request GET "https://api.github.com/repos/$org/$repo/actions/workflows" \
 --header "X-GitHub-Api-Version: 2022-11-28" \
 --header "Accept: application/vnd.github+json" \
---header "Authorization: Bearer $pat" | jq '.workspaces'
+--header "Authorization: Bearer $pat" | jq '.workspaces[]'
 ```
 
 ### Call GitHub Action

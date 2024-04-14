@@ -32,7 +32,7 @@ jobs:
         mkdir ${{ github.workspace }}/temp
         echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
     - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ${{ inputs.TFC_REPO }}
         path: ${{ env.REPO_TEMP_PATH }}
