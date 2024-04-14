@@ -18,11 +18,7 @@ on:
         description: 'Defines the branch that contains the workspace code'
         required: true
         type: string
-      TAGS:
-        description: 'JSON to define tags'
-        type: string
-        required: true
-      REGION:
+      GCP_REGION:
         description: 'Defines the region'
         type: string
         required: true
