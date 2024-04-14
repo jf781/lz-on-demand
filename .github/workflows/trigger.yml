@@ -46,14 +46,15 @@ jobs:
     outputs:
       WORKSPACE_NAME: ${{ env.WORKSPACE_NAME }}
       REGION: ${{ env.REGION }}
+      TEMPLATE_REPO: ${{ env.TEMPLATE_REPO }}
     steps:
     - name: 'define-orgName-variable'
       shell: pwsh
       run: |
         # Define organization name
         $orgName = "${{ inputs.PARENT_MGMT_GRP_NAME }}".split('-')[1]
-        echo "ORG_NAME: $orgName"
-        echo "ORG_NAME=$orgName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        echo "TFC_ORG_NAME: $orgName"
+        echo "TFC_ORG_NAME=$orgName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         # Define region
         $regionTable = @{"w1" = "westus"; "w2" = "westus2"; "w3" = "westus3"; "e1" = "eastus"; "e2" = "eastus2"; "c1" = "centralus"; "sc1" = "southcentralus"}
         $region = $regionTable.${{ fromJSON(inputs.TAGS).region }}
@@ -69,12 +70,12 @@ jobs:
         echo "WORKSPACE_NAME = $workspaceName"
         echo "WORKSPACE_NAME=$workspaceName" >> $GITHUB_ENV
         if [[ ${{ inputs.TEMPLATE_REPO_URL }} == *"api.github.com"* ]]; then
-          echo "TEMPLATE_REPO_URL is a GitHub API URL: ${{ inputs.TEMPLATE_REPO_URL }}"
-          echo "TEMPLATE_REPO_URL=${{ inputs.TEMPLATE_REPO_URL }}" >> $GITHUB_ENV
+          echo "TEMPLATE_REPO is a GitHub API URL: ${{ inputs.TEMPLATE_REPO_URL }}"
+          echo "TEMPLATE_REPO=${{ inputs.TEMPLATE_REPO_URL }}" >> $GITHUB_ENV
         else
           apiGitHubUrl=$(echo ${{ inputs.TEMPLATE_REPO_URL }} | sed  's/github.com/api.github.com/g')
-          echo "Updated TEMPLATE_REPO_URL to be a GitHub API URL: $apiGitHubUrl"
-          echo "TEMPLATE_REPO_URL=$apiGitHubUrl" >> $GITHUB_ENV
+          echo "Updated TEMPLATE_REPO to be a GitHub API URL: $apiGitHubUrl"
+          echo "TEMPLATE_REPO=$apiGitHubUrl" >> $GITHUB_ENV
         fi
     - name: 'test-if-${{ env.WORKSPACE_NAME }}-exists'
       run: |
@@ -95,7 +96,7 @@ jobs:
     needs: validate-inputs
     with:
       REPO_NAME: ${{ needs.validate-inputs.outputs.WORKSPACE_NAME }}
-      TEMPLATE_REPO_URL:  ${{ inputs.TEMPLATE_REPO_URL }}
+      TEMPLATE_REPO_URL:  ${{ needs.validate-inputs.outputs.TEMPLATE_REPO }}
     secrets: inherit
   call-workflow-update-tfc-provider-file:
     name: 'Updates the provider.tf file with the details of the TFC Workspace'
