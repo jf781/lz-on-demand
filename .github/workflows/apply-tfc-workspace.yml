@@ -6,10 +6,10 @@ on:
         description: 'Defines the workspace Name'
         required: true
         type: string
-      ORG_NAME:
-        description: 'Defines the Terraform Cloud organization name'
-        required: true
-        type: string
+      # TFC_ORG_NAME:
+      #   description: 'Defines the Terraform Cloud organization name'
+      #   required: true
+      #   type: string
       TFC_REPO:
         description: 'Defines the URL that contains the workspace code'
         required: true
