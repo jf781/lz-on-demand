@@ -42,7 +42,7 @@ jobs:
         mkdir ${{ github.workspace }}/temp
         echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
     - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ${{ inputs.TFC_REPO }}
         path: ${{ env.REPO_TEMP_PATH }}
@@ -53,26 +53,6 @@ jobs:
         export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
         cd ${{ env.REPO_TEMP_PATH }}
         terraform init
-    - name: 'Define TFC Variable - location'
-      uses: cbsinteractive/create-tfc-workspace-variable-action@v1
-      with:
-        tfcToken: ${{ secrets.TFC_TOKEN }}
-        orgName: ${{ inputs.TFC_ORG_NAME }}
-        workspaceName: ${{ inputs.WORKSPACE_NAME }}
-        variableName: location
-        category: terraform
-        sensitive: false
-        value: ${{ inputs.REGION }}
-    - name: 'Define TFC Variable - ARM_SUBSCRIPTION_ID'
-      uses: cbsinteractive/create-tfc-workspace-variable-action@v1
-      with:
-        tfcToken: ${{ secrets.TFC_TOKEN }}
-        orgName: ${{ inputs.TFC_ORG_NAME }}
-        workspaceName: ${{ inputs.WORKSPACE_NAME }}
-        variableName: ARM_SUBSCRIPTION_ID
-        category: env
-        sensitive: true
-        value: ${{ secrets.ARM_SUBSCRIPTION_ID }}
     - name: 'Get ID of newly created TFC workspace'
       run: |
         workspaces=$( curl -X GET 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME}}/workspaces' \
@@ -82,6 +62,22 @@ jobs:
         echo "WORKSPACE_ID=$workspaceId" >> $GITHUB_ENV
         echo "workspaceId is $workspaceId"
         if [ -z "$workspaceId" ]; then exit 2 ; fi 
+    - name: 'Define TFC Variable - location'
+      run: |
+        variable=$( curl -X GET 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" \
+        -d '{"data":{"type":"vars","attributes":{"key":"location","value":"${{ inputs.REGION }}","category":"terraform","hcl":false,"sensitive":false}}}')
+        variableId=$( echo $variable | jq '.data.id' -r)
+        if [ -z "$variableId" ]; then exit 2 ; fi
+    - name: 'Define TFC Variable - ARM_SUBSCRIPTION_ID'
+      run: |
+        variable=$( curl -X GET 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}' \
+        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+        --header "Content-Type: application/vnd.api+json" \
+        -d '{"data":{"type":"vars","attributes":{"key":"ARM_SUBSCRIPTION_ID","value":"${{ secrets.ARM_SUBSCRIPTION_ID }}","category":"env","hcl":false,"sensitive":true}}}')
+        variableId=$( echo $variable | jq '.data.id' -r)
+        if [ -z "$variableId" ]; then exit 2 ; fi 
     - name: 'Update TFC Workspace to connect with GitHub Repo'
       run: |
         workspaceUpdate=$( curl -X PATCH 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME }}/workspaces/${{ inputs.WORKSPACE_NAME }}' \
