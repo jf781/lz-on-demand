@@ -49,7 +49,7 @@ jobs:
         GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
       run: |
         cd ${{ env.REPO_TEMP_PATH }}/utilities
-        echo $GCP_CREDENTIALS | base64 -di > gcp_creds.json 
+        echo $GCP_CREDENTIALS | base64 -di | tr -s '\n' ' ' > gcp_creds.json 
         # gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
         creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$creds" >> $GITHUB_ENV
