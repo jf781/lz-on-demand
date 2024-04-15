@@ -37,6 +37,8 @@ jobs:
       run: |
         mkdir ${{ github.workspace }}/temp
         echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
+        gcp_creds=$(python stringify-gcp-credentials.py ${{ secrets.GCP_CREDENTIALS }})
+        echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
     - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
       uses: actions/checkout@v4
       with:
@@ -71,7 +73,7 @@ jobs:
         variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" \
-        -d '{"data":{"type":"vars","attributes":{"key":"gcp_creds","value":"${{ secrets.GCP_CREDENTIALS }}","category":"env","hcl":false,"sensitive":true}}}')
+        -d '{"data":{"type":"vars","attributes":{"key":"gcp_creds","value":"${{ env.GCP_CREDS }}","category":"env","hcl":false,"sensitive":true}}}')
         variableId=$( echo $variable | jq '.data.id' -r)
         if [ -z "$variableId" ]; then exit 2 ; fi 
     - name: 'Update TFC Workspace to connect with GitHub Repo'
