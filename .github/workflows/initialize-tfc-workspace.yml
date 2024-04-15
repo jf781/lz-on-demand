@@ -30,16 +30,12 @@ on:
 jobs:
   initialize-tfc-workspace:
     runs-on: ubuntu-latest
-    # env:
-    #   GCP_CREDS: |
-    #     ${{ secrets.GCP_CREDENTIALS }}
+    env:
+      GCP_CREDS: |
+        ${{ secrets.GCP_CREDENTIALS }}
     outputs:
       TFC_WORKSPACE_ID: ${{ env.WORKSPACE_ID }}
     steps:
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
     - name: 'Define runtime variables'
       run: |
         mkdir ${{ github.workspace }}/temp
@@ -51,12 +47,12 @@ jobs:
         path: ${{ env.REPO_TEMP_PATH }}
         token: ${{ secrets.GH_TOKEN }}
         ref: ${{ inputs.TFC_REPO_BRANCH }}
-    - name: 'Define Google Credentials'
-      run: |
-        echo "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
-        $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
-        echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
-    - name: 'Authenticate to Terraform Cloud and create workspace'
+    # - name: 'Define Google Credentials'
+    #   run: |
+    #     echo "${{ env.GCP_CREDENTIALS }}" > gcp_creds.json
+    #     $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
+    #     echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
+    # - name: 'Authenticate to Terraform Cloud and create workspace'
       run: |
         export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
         cd ${{ env.REPO_TEMP_PATH }}
