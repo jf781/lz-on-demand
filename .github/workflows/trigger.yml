@@ -89,7 +89,7 @@ jobs:
   call-workflow-update-tfvars-file:
     name: 'Updates TFVars with the Landing Zone details'
     uses: ./.github/workflows/update-tfvars-file.yml
-    needs: [call-workflow-create-gh-repo, call-workflow-update-tfc-provider-file]
+    needs: [call-workflow-create-gh-repo, call-workflow-update-tfc-config-file]
     with:
       TFC_REPO: ${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_FULL_NAME }}
       TFC_REPO_BRANCH: "${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_DEFAULT_BRANCH }}"
@@ -102,7 +102,7 @@ jobs:
   call-workflow-initialize-tfc-workspace:
     name: 'Initialize TFC Workspace and define variables'
     uses: ./.github/workflows/initialize-tfc-workspace.yml
-    needs: [validate-inputs,call-workflow-create-gh-repo, call-workflow-update-tfc-provider-file, call-workflow-update-tfvars-file]
+    needs: [validate-inputs,call-workflow-create-gh-repo, call-workflow-update-tfc-config-file, call-workflow-update-tfvars-file]
     with:
       WORKSPACE_NAME: ${{ inputs.WORKSPACE_NAME }}
       TFC_ORG_NAME:  ${{ vars.TFC_ORG_NAME }}
@@ -113,7 +113,7 @@ jobs:
   call-workflow-apply-tfc-workspace:
     name: 'Apply TFC Workspace'
     uses: ./.github/workflows/apply-tfc-workspace.yml
-    needs: [validate-inputs, call-workflow-create-gh-repo, call-workflow-update-tfc-provider-file, call-workflow-initialize-tfc-workspace, call-workflow-update-tfvars-file]
+    needs: [validate-inputs, call-workflow-create-gh-repo, call-workflow-update-tfc-config-file, call-workflow-initialize-tfc-workspace, call-workflow-update-tfvars-file]
     with:
       WORKSPACE_NAME: ${{ inputs.WORKSPACE_NAME }}
       TFC_REPO: ${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_FULL_NAME }}
