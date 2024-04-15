@@ -37,8 +37,10 @@ jobs:
       run: |
         mkdir ${{ github.workspace }}/temp
         echo "REPO_TEMP_PATH=${{ github.workspace }}/temp" >> $GITHUB_ENV
-        gcp_creds=$(python stringify-gcp-credentials.py ${{ secrets.GCP_CREDENTIALS }})
+        echo ${{ secrets.GCP_CREDENTIALS }} > gcp_creds.json
+        gcp_creds=$(python stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
+        rm gcp_creds.json
     - name: 'Checkout ${{ inputs.TFC_REPO }} that contains the Terraform workspace code'
       uses: actions/checkout@v4
       with:
