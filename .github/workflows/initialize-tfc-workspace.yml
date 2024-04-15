@@ -52,11 +52,12 @@ jobs:
       run: |
         pwd
         tree
-        printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
         cd ${{ github.workspace }}/temp/utilities
+        pwd
         tree
-        cat ${{ env.REPO_TEMP_PATH }}/utilities/stringify-gcp-credentials.py
-        gcp_creds=$(python ${{ env.REPO_TEMP_PATH }}/utilities/stringify-gcp-credentials.py gcp_creds.json)
+        cat stringify-gcp-credentials.py
+        printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
+        gcp_creds=$(python stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
         rm gcp_creds.json
     - name: 'Authenticate to Terraform Cloud and create workspace'
