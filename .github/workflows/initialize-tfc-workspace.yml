@@ -48,15 +48,11 @@ jobs:
         path: ${{ env.REPO_TEMP_PATH }}
         token: ${{ secrets.GH_TOKEN }}
         ref: ${{ inputs.TFC_REPO_BRANCH }}
-    # - name: 'Define Google Credentials'
-    #   run: |
-    #     # printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
-    #     # # # gcp_creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
-    #     # # gcp_creds=$(base64 -w 0 gcp_creds.json)
-    #     # # echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
-    #     # # rm gcp_creds.json
-    #     # $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
-    #     # echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
+    - name: 'Define Google Credentials'
+      run: |
+        printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
+        $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
+        echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
     - name: 'Authenticate to Terraform Cloud and create workspace'
       run: |
         export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
@@ -84,7 +80,7 @@ jobs:
         variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" \
-        -d '{"data":{"type":"vars","attributes":{"key":"GOOGLE_CREDENTIALS","value":"${{ secrets.GCP_CREDENTIALS }}","category":"env","hcl":false,"sensitive":true}}}')
+        -d '{"data":{"type":"vars","attributes":{"key":"GOOGLE_CREDENTIALS","value":"${{ env.GCP_CREDS }}","category":"env","hcl":false,"sensitive":true}}}')
         variableId=$( echo $variable | jq '.data.id' -r)
         if [ -z "$variableId" ]; then exit 2 ; fi 
     - name: 'Update TFC Workspace to connect with GitHub Repo'
