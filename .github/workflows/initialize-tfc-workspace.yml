@@ -48,8 +48,8 @@ jobs:
       env:
         GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
       run: |
-        echo $GCP_CREDENTIALS | base64 -di > gcp_creds.json
-        $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
+        echo $GCP_CREDENTIALS | base64 -di > gcp_creds.json 
+        gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
     - name: 'Authenticate to Terraform Cloud and create workspace'
       run: |
