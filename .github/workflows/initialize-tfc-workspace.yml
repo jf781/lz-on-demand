@@ -53,7 +53,7 @@ jobs:
         pwd
         tree
         printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
-        cd ${{ env.REPO_TEMP_PATH }}/utilities
+        cd ${{ github.workspace }}/temp/utilities
         tree
         cat ${{ env.REPO_TEMP_PATH }}/utilities/stringify-gcp-credentials.py
         gcp_creds=$(python ${{ env.REPO_TEMP_PATH }}/utilities/stringify-gcp-credentials.py gcp_creds.json)
