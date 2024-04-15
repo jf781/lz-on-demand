@@ -34,6 +34,10 @@ on:
         description: 'Defines the file that contains the TFC configuration'
         required: true
         type: string
+      TF_VARS_FILE:
+        description: 'Defines the file that contains the TFVars configuration'
+        required: true
+        type: string
 
 
 
@@ -93,6 +97,7 @@ jobs:
     with:
       TFC_REPO: ${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_FULL_NAME }}
       TFC_REPO_BRANCH: "${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_DEFAULT_BRANCH }}"
+      TF_VARS_FILE: ${{ inputs.TF_VARS_FILE }}
       GCP_PROJECT_ID: ${{ inputs.GCP_PROJECT_ID }}
       GCP_REGION: ${{ inputs.GCP_REGION }}
       GKE_CLUSTER_NAME: ${{ inputs.GKE_CLUSTER_NAME}}

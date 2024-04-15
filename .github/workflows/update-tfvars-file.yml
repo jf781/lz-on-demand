@@ -10,6 +10,10 @@ on:
         description: 'Defines the branch that contains the workspace code'
         required: true
         type: string
+      TF_VARS_FILE:
+        description: 'Defines the file that contains the TFVars'
+        required: true
+        type: string
       GCP_PROJECT_ID:
         description: 'Target GCP Project ID'
         required: true
@@ -47,12 +51,12 @@ jobs:
         path: ${{ env.REPO_TEMP_PATH }}
         token: ${{ secrets.GH_TOKEN }}
         ref: ${{ inputs.TFC_REPO_BRANCH }}
-    - name: 'Update workspace.auto.tfvars file to use provided variables'
+    - name: 'Update ${{ inputs.TF_VARS_FILE }} file to use provided variables'
       uses: cschleiden/replace-tokens@v1
       with:
         tokenPrefix: '___'
         tokenSuffix: '___'
-        files: '${{ env.REPO_TEMP_PATH }}/workspace.auto.tfvars'
+        files: '${{ env.REPO_TEMP_PATH }}/${{ inputs.TF_VARS_FILE }}'
       env:
         GCP_PROJECT_ID: ${{ inputs.GCP_PROJECT_ID }}
         GCP_REGION: ${{ inputs.GCP_REGION }}
@@ -60,15 +64,15 @@ jobs:
         VPC_NAME: ${{ inputs.VPC_NAME }}
         SUBNET_NAME: ${{ inputs.SUBNET_NAME }}
     # - uses: actions/checkout@v3
-    - name: 'Update workspace.auto.tfvars file to replace colons with equal signs'
+    - name: 'Update ${{ inputs.TF_VARS_FILE }} file to replace colons with equal signs'
       run: |
         cd ${{ env.REPO_TEMP_PATH }}
-        sed -i 's/:/ =/g' workspace.auto.tfvars
-    - name: 'Commit and push changes made to workspace.auto.tfvars file to the repo: ${{ inputs.TFC_REPO }}'
+        sed -i 's/:/ =/g' ${{ inputs.TF_VARS_FILE }}
+    - name: 'Commit and push changes made to ${{ inputs.TF_VARS_FILE }} file to the repo: ${{ inputs.TFC_REPO }}'
       run: |
           cd ${{ env.REPO_TEMP_PATH }}
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit -m "Updated workspace.auto.tfvars file with inputs provided to the workflow"
+          git commit -m "Updated ${{ inputs.TF_VARS_FILE }} file with inputs provided to the workflow"
           git push     
