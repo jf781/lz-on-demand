@@ -50,6 +50,14 @@ curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/$workflo
   -d @example-input.json
 ```
 
+```
+curl -X POST "https://api.github.com/repos/$org/$repo/actions/workflows/$workflowId/dispatches" \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $pat"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  -d @gke-example-input.json
+```
+
 ### Create Repo
 ```bash
   curl -X POST "https://api.github.com/orgs/$org/repos" \

@@ -50,16 +50,7 @@ jobs:
         ref: ${{ inputs.TFC_REPO_BRANCH }}
     - name: 'Define Google Credentials'
       run: |
-        pwd
-        tree
-        cd ${{ github.workspace }}
-        pwd
-        tree
-        cd temp
-        pwd
-        tree
-        cd utilities
-        cat stringify-gcp-credentials.py
+        cd ${{ env.REPO_TEMP_PATH }}/utilities
         printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
         gcp_creds=$(python stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
