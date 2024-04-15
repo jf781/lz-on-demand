@@ -51,7 +51,7 @@ jobs:
     - name: 'Define Google Credentials'
       run: |
         printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
-        gcp_creds=$(python utilities/stringify-gcp-credentials.py gcp_creds.json)
+        gcp_creds=$(python ${{ env.REPO_TEMP_PATH }}/utilities/stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
         rm gcp_creds.json
     - name: 'Authenticate to Terraform Cloud and create workspace'
