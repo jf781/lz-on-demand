@@ -30,6 +30,10 @@ on:
         description: 'Target Subnet Name'
         required: false
         type: string
+      TFC_CONFIG_FILE:
+        description: 'Defines the file that contains the TFC configuration'
+        required: true
+        type: string
 
 
 
@@ -71,15 +75,16 @@ jobs:
       REPO_NAME: ${{ inputs.WORKSPACE_NAME}}
       TEMPLATE_REPO_URL:  ${{ needs.validate-inputs.outputs.TEMPLATE_REPO }}
     secrets: inherit
-  call-workflow-update-tfc-provider-file:
+  call-workflow-update-tfc-config-file:
     name: 'Updates the provider.tf file with the details of the TFC Workspace'
-    uses: ./.github/workflows/update-tfc-provider-file.yml
+    uses: ./.github/workflows/update-tfc-config-file.yml
     needs: [validate-inputs, call-workflow-create-gh-repo]
     with:
       WORKSPACE_NAME: ${{ inputs.WORKSPACE_NAME }}
       TFC_ORG_NAME:  ${{ vars.TFC_ORG_NAME }}
       TFC_REPO: ${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_FULL_NAME }}
       TFC_REPO_BRANCH: ${{ needs.call-workflow-create-gh-repo.outputs.NEW_REPO_DEFAULT_BRANCH }}
+      TFC_CONFIG_FILE: ${{ inputs.TFC_CONFIG_FILE }}
     secrets: inherit
   call-workflow-update-tfvars-file:
     name: 'Updates TFVars with the Landing Zone details'
