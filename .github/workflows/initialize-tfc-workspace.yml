@@ -33,6 +33,10 @@ jobs:
     outputs:
       TFC_WORKSPACE_ID: ${{ env.WORKSPACE_ID }}
     steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
     - name: 'Define runtime variables'
       run: |
         mkdir ${{ github.workspace }}/temp
