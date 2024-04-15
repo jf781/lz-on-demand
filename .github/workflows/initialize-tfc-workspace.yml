@@ -36,7 +36,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
     - name: 'Define runtime variables'
       run: |
         mkdir ${{ github.workspace }}/temp
@@ -52,7 +52,7 @@ jobs:
       run: |
         cd ${{ env.REPO_TEMP_PATH }}/utilities
         printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
-        gcp_creds=$(python stringify-gcp-credentials.py gcp_creds.json)
+        gcp_creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
         rm gcp_creds.json
     - name: 'Authenticate to Terraform Cloud and create workspace'
