@@ -30,9 +30,6 @@ on:
 jobs:
   initialize-tfc-workspace:
     runs-on: ubuntu-latest
-    env:
-      GCP_CREDENTIALS: |
-        ${{ secrets.GCP_CREDENTIALS }}
     outputs:
       TFC_WORKSPACE_ID: ${{ env.WORKSPACE_ID }}
     steps:
@@ -48,8 +45,11 @@ jobs:
         token: ${{ secrets.GH_TOKEN }}
         ref: ${{ inputs.TFC_REPO_BRANCH }}
     - name: 'Define Google Credentials'
+      env:
+        GCP_CREDENTIALS: |
+          ${{ secrets.GCP_CREDENTIALS }}
       run: |
-        echo '${{ env.GCP_CREDENTIALS }}' > gcp_creds.json
+        echo $GCP_CREDENTIALS > gcp_creds.json
         $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
     - name: 'Authenticate to Terraform Cloud and create workspace'
