@@ -50,6 +50,7 @@ jobs:
         ref: ${{ inputs.TFC_REPO_BRANCH }}
     - name: 'Define Google Credentials'
       run: |
+        pwd
         tree
         printf "%s" "${{ secrets.GCP_CREDENTIALS }}" > gcp_creds.json
         cd ${{ env.REPO_TEMP_PATH }}/utilities
