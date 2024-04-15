@@ -82,7 +82,7 @@ jobs:
         variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" \
-        -d '{"data":{"type":"vars","attributes":{"key":"gcp_creds","value":"${{ env.GCP_CREDS }}","category":"env","hcl":false,"sensitive":true}}}')
+        -d '{"data":{"type":"vars","attributes":{"key":"gcp_creds","value":"${{ env.GCP_CREDS }}","category":"terraform","hcl":false,"sensitive":true}}}')
         variableId=$( echo $variable | jq '.data.id' -r)
         if [ -z "$variableId" ]; then exit 2 ; fi 
     - name: 'Update TFC Workspace to connect with GitHub Repo'
