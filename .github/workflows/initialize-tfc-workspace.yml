@@ -49,7 +49,7 @@ jobs:
         ref: ${{ inputs.TFC_REPO_BRANCH }}
     - name: 'Define Google Credentials'
       run: |
-        echo "${{ env.GCP_CREDENTIALS }}" > gcp_creds.json
+        echo '${{ env.GCP_CREDENTIALS }}' > gcp_creds.json
         $gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
         echo "GCP_CREDS=$gcp_creds" >> $GITHUB_ENV
     - name: 'Authenticate to Terraform Cloud and create workspace'
