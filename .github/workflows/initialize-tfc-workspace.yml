@@ -44,16 +44,16 @@ jobs:
         path: ${{ env.REPO_TEMP_PATH }}
         token: ${{ secrets.GH_TOKEN }}
         ref: ${{ inputs.TFC_REPO_BRANCH }}
-    - name: 'Define Google Credentials'
-      env:
-        GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-      run: |
-        cd ${{ env.REPO_TEMP_PATH }}/utilities
-        echo $GCP_CREDENTIALS | base64 -di | tr -s '\n' ' ' > gcp_creds.json 
-        # gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
-        creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
-        echo "GCP_CREDS=$creds" >> $GITHUB_ENV
-    - name: 'Authenticate to Terraform Cloud and create workspace'
+    # - name: 'Define Google Credentials'
+    #   env:
+    #     GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+    #   run: |
+    #     cd ${{ env.REPO_TEMP_PATH }}/utilities
+    #     echo $GCP_CREDENTIALS | base64 -di | tr -s '\n' ' ' > gcp_creds.json 
+    #     # gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
+    #     creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
+    #     echo "GCP_CREDS=$creds" >> $GITHUB_ENV
+    # - name: 'Authenticate to Terraform Cloud and create workspace'
       run: |
         export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
         cd ${{ env.REPO_TEMP_PATH }}
@@ -75,15 +75,15 @@ jobs:
         -d '{"data":{"type":"vars","attributes":{"key":"region","value":"${{ inputs.GCP_REGION }}","category":"terraform","hcl":false,"sensitive":false}}}')
         variableId=$( echo $variable | jq '.data.id' -r)
         if [ -z "$variableId" ]; then exit 2 ; fi
-    - name: 'Define TFC Variable - GCP creds'
-      run: |
-        variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
-        --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
-        --header "Content-Type: application/vnd.api+json" \
-        -d '{"data":{"type":"vars","attributes":{"key":"GOOGLE_CREDENTIALS","value":"${{ env.GCP_CREDS }}","category":"env","hcl":false,"sensitive":true}}}')
-        echo $variable
-        variableId=$( echo $variable | jq '.data.id' -r)
-        if [ -z "$variableId" ]; then exit 2 ; fi 
+    # - name: 'Define TFC Variable - GCP creds'
+    #   run: |
+    #     variable=$( curl -X POST 'https://app.terraform.io/api/v2/workspaces/${{ env.WORKSPACE_ID }}/vars' \
+    #     --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
+    #     --header "Content-Type: application/vnd.api+json" \
+    #     -d '{"data":{"type":"vars","attributes":{"key":"GOOGLE_CREDENTIALS","value":"${{ env.GCP_CREDS }}","category":"env","hcl":false,"sensitive":true}}}')
+    #     echo $variable
+    #     variableId=$( echo $variable | jq '.data.id' -r)
+    #     if [ -z "$variableId" ]; then exit 2 ; fi 
     - name: 'Update TFC Workspace to connect with GitHub Repo'
       run: |
         workspaceUpdate=$( curl -X PATCH 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME }}/workspaces/${{ inputs.WORKSPACE_NAME }}' \
@@ -97,7 +97,7 @@ jobs:
         variableSets=$( curl -X GET 'https://app.terraform.io/api/v2/organizations/${{ inputs.TFC_ORG_NAME}}/varsets' \
         --header "Authorization: Bearer ${{ secrets.TFC_TOKEN }}" \
         --header "Content-Type: application/vnd.api+json" )
-        varSetId=$( echo $variableSets | jq '.data[] | select ( .attributes.name == "${{ vars.TFC_AZURE_VAR_SET_NAME }}" ) | .id ' -r )
+        varSetId=$( echo $variableSets | jq '.data[] | select ( .attributes.name == "${{ vars.TFC_GCP_VAR_SET_NAME }}" ) | .id ' -r )
         echo "varSetId is $varSetId"
         if [ -z "$varSetId" ]; then exit 2 ; fi
         echo "VAR_SET_ID=$varSetId" >> $GITHUB_ENV
