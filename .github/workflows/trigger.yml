@@ -20,24 +20,26 @@ on:
         type: string
       GKE_CLUSTER_NAME:
         description: 'Target GKE Cluster Name'
-        required: false
+        required: true
         type: string
       VPC_NAME:
         description: 'Target VPC Name'
-        required: false
+        required: true
         type: string
       SUBNET_NAME:
         description: 'Target Subnet Name'
-        required: false
+        required: true
         type: string
       TFC_CONFIG_FILE:
         description: 'Defines the file that contains the TFC configuration'
-        required: true
+        required: false
         type: string
+        default: 'versions.tf'
       TF_VARS_FILE:
         description: 'Defines the file that contains the TFVars configuration'
-        required: true
+        required: false
         type: string
+        default: 'terraform.tfvars'
 
 
 
