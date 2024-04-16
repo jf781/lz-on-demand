@@ -53,7 +53,7 @@ jobs:
     #     # gcp_creds=$(cat gcp_creds.json | tr -s '\n' ' ')
     #     creds=$(python3 stringify-gcp-credentials.py gcp_creds.json)
     #     echo "GCP_CREDS=$creds" >> $GITHUB_ENV
-    # - name: 'Authenticate to Terraform Cloud and create workspace'
+    - name: 'Authenticate to Terraform Cloud and create workspace'
       run: |
         export TF_TOKEN_app_terraform_io=${{ secrets.TFC_TOKEN }}
         cd ${{ env.REPO_TEMP_PATH }}
