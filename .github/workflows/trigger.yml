@@ -56,7 +56,7 @@ jobs:
           echo "TEMPLATE_REPO is a GitHub API URL: ${{ inputs.TEMPLATE_REPO_URL }}"
           echo "TEMPLATE_REPO=${{ inputs.TEMPLATE_REPO_URL }}" >> $GITHUB_ENV
         else
-          apiGitHubUrl=$(echo ${{ inputs.TEMPLATE_REPO_URL }} | sed  's/github.com/api.github.com/g')
+          apiGitHubUrl=$(echo ${{ inputs.TEMPLATE_REPO_URL }} | sed  's/github.com/api.github.com\/repos/g')
           echo "Updated TEMPLATE_REPO to be a GitHub API URL: $apiGitHubUrl"
           echo "TEMPLATE_REPO=$apiGitHubUrl" >> $GITHUB_ENV
         fi
